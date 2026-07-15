@@ -9,3 +9,4 @@ Pillow
 ultralytics
 python-dotenv
 pandas
+pyphen

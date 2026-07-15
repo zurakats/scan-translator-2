@@ -155,7 +155,7 @@ function App() {
 
       {/* Main Content */}
       <main>
-        <div className="flex flex-col w-screen min-h-[calc(100vh-80px)] justify-center gap-[20px] items-center z-10 relative">
+        <div className="flex flex-col w-full min-h-[calc(100vh-80px)] justify-center gap-[20px] items-center z-10 relative py-[40px]">
 
           <label
             id="imageInfo"
@@ -252,8 +252,8 @@ function App() {
         </div>
 
         {/* Results Section */}
-        <div className="bg-brand-dark w-full min-h-[100px] py-10 flex flex-col items-center justify-center">
-          {results.length > 0 && (
+        {results.length > 0 && (
+          <div className="bg-brand-dark w-full min-h-[100px] py-10 flex flex-col items-center justify-center">
             <div className="flex flex-col items-center w-full max-w-[1600px] px-4 gap-12">
               {results.map((result, index) => (
                 <div key={index} className="flex flex-col xl:flex-row justify-center items-center gap-8 w-full">
@@ -270,8 +270,8 @@ function App() {
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );
