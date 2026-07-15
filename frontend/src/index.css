@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-dark: #1E1E1E;
+  --color-brand-blue: #267BFA;
+  --color-brand-blue-hover: #0043a8;
+  --font-winky: 'WinkyRough', sans-serif;
+  --font-trade: 'TradeWinds', sans-serif;
+}
+
+@font-face {
+    font-family: 'WinkyRough';
+    src: url('/fonts/Winky_Rough/WinkyRough-Regular.ttf') format('truetype');
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'TradeWinds';
+    src: url('/fonts/Trade_Winds/TradeWinds-Regular.ttf') format('truetype');
+    font-style: normal;
+    font-weight: normal;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'WinkyRough', sans-serif;
+    padding: 0;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.logo {
+    font-family: 'TradeWinds', sans-serif;
+    color: #ffffff;
+    font-size: 2em;
+}
+
+@media screen and (max-width: 650px) {
+    .logo {
+        font-size: 1.5em;
+    }
+}
+
+body {
+    background-color: white;
+}
+
+main {
+    padding-top: 80px;
+    font-size: 1.5em;
+}
+
+#imageInfo {
+    font-size: 18px;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 10px;
+    z-index: 10;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.hero {
+    position: absolute;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: -10;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    background: linear-gradient(to top, #1E1E1E, transparent);
+    bottom: 0;
+    width: 100%;
+    height: 65%;
+}
+
+.hero img {
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Base custom styles to map to the original design */
+select option:nth-child(1) {
+    color: #444444;
+}
