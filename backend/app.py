@@ -1,12 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from image_processor import process_image, selectOCR
+from image_processor import extract_bubbles, render_bubbles, batch_gemini_translate, selectOCR, translator
 from werkzeug.utils import secure_filename
 import os
-import base64
 
 app = Flask(__name__)
-# Allow CORS from Vite frontend
 CORS(app)
 
 UPLOAD_FOLDER = os.path.join("static", "uploads")
@@ -20,23 +18,54 @@ def process_image_endpoint():
 
         sourceLang = request.form['source']
         targetLang = request.form['target']
+        engine = request.form.get('engine', 'googletrans')
+        api_key = request.form.get('apiKey', '')
         files = request.files.getlist('image[]')
 
-        results = []
         ocr, index, translate_code = selectOCR(sourceLang)
-        for file in files:
+
+        image_contexts = []
+        all_bubbles = []
+
+        # Fase 1: YOLO + OCR
+        for img_idx, file in enumerate(files):
             filename = secure_filename(file.filename)
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             file.save(filepath)
-            
-            output_img = process_image(filepath, ocr, index, translate_code, targetLang)
 
-            output_path = os.path.join(UPLOAD_FOLDER, f"output_{filename}")
-            output_img.save(output_path)
+            img_pil, draw, bubbles = extract_bubbles(filepath, ocr, index, translate_code, image_id=img_idx)
+            image_contexts.append({
+                'img_pil': img_pil, 'draw': draw, 'bubbles': bubbles, 'filename': filename
+            })
+            all_bubbles.extend(bubbles)
 
-            with open(output_path, "rb") as f:
-                encoded = base64.b64encode(f.read()).decode('utf-8')
-            results.append(f"data:image/png;base64,{encoded}")
+        # Fase 2
+        translations = {}
+        if engine == 'gemini' and api_key:
+            translations = batch_gemini_translate(all_bubbles, translate_code, targetLang, api_key)
+
+        # Fallback googletrans if gemini fail
+        for b in all_bubbles:
+            if not translations.get(b['id']):
+                if b['cleaned_text'].strip():
+                    translations[b['id']] = translator.translate(
+                        b['cleaned_text'], src=translate_code, dest=targetLang
+                    ).text
+                else:
+                    translations[b['id']] = "[Teks tidak terbaca]"
+
+        # Fase 3
+        results = []
+        for ctx in image_contexts:
+            render_bubbles(ctx['img_pil'], ctx['draw'], ctx['bubbles'], translations, targetLang)
+
+            output_path = os.path.join(UPLOAD_FOLDER, f"output_{ctx['filename']}")
+            ctx['img_pil'].save(output_path)
+
+            results.append({
+                'original': f"http://127.0.0.1:5000/static/uploads/{ctx['filename']}",
+                'translated': f"http://127.0.0.1:5000/static/uploads/output_{ctx['filename']}"
+            })
 
         return jsonify({'results': results})
 

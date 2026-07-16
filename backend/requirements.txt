@@ -10,3 +10,4 @@ ultralytics
 python-dotenv
 pandas
 pyphen
+google-genai
